@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFD700">
+    <meta name="description" content="Page not found - ShockShield">
+    <title>Page Not Found - ShockShield</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--header-height) + var(--space-2xl)) var(--container-padding) var(--space-2xl);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .error-container {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .error-code {
+            font-family: var(--font-display);
+            font-size: clamp(8rem, 20vw, 14rem);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: var(--space-lg);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .error-title {
+            font-size: var(--text-2xl);
+            margin-bottom: var(--space-md);
+        }
+        
+        .error-description {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-xl);
+            line-height: 1.7;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .error-illustration {
+            margin-bottom: var(--space-xl);
+            opacity: 0.8;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 480px) {
+            .error-actions {
+                flex-direction: column;
+            }
+            .error-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas" class="particle-canvas"></canvas>
+    
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo" aria-label="ShockShield Home">
+                <svg class="logo-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700"/>
+                            <stop offset="100%" style="stop-color:#FF6B00"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M24 4 L24 20 M12 20 L36 20 M20 28 L28 28 M16 36 L32 36" stroke="url(#logoGradient)" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="24" cy="4" r="3" fill="url(#logoGradient)"/>
+                    <circle cx="12" cy="20" r="2" fill="#FFD700"/>
+                    <circle cx="36" cy="20" r="2" fill="#FFD700"/>
+                </svg>
+                <span class="logo-text">ShockShield</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="error-page" role="main">
+        <div class="error-container">
+            <div class="error-illustration">
+                <svg width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="errorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700"/>
+                            <stop offset="100%" style="stop-color:#FF6B00"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="80" cy="80" r="70" stroke="url(#errorGrad)" stroke-width="4" stroke-dasharray="300 100" stroke-linecap="round">
+                        <animateTransform attributeName="transform" type="rotate" dur="10s" from="0 80 80" to="360 80 80" repeatCount="indefinite"/>
+                    </circle>
+                    <path d="M80 40 L80 60 M70 70 L90 70 M70 90 L90 90 M70 110 L90 110" stroke="url(#errorGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="80" cy="40" r="5" fill="url(#errorGrad)"/>
+                </svg>
+            </div>
+            
+            <div class="error-code">404</div>
+            
+            <h1 class="error-title">Page Not Found</h1>
+            
+            <p class="error-description">
+                Looks like you've stumbled upon an uncharted territory. 
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            
+            <div class="error-actions">
+                <a href="index.html" class="btn btn-primary btn-large">
+                    <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                    <span class="btn-text">Back to Safety</span>
+                </a>
+                <a href="feed.html" class="btn btn-secondary btn-large">
+                    <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                        <path d="M8 21h8M12 17v4"></path>
+                    </svg>
+                    <span class="btn-text">View Live Feed</span>
+                </a>
+            </div>
+            
+            <p style="margin-top: var(--space-xl); font-size: var(--text-sm); color: var(--color-text-tertiary);">
+                Need help? <a href="mailto:nexvolt@shockshield.io" style="color: var(--color-text-accent);">Contact support</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 ShockShield - Team NexVolt. Built for HackNauts 2.0.</p>
+                <p class="made-with">Made with <span class="heart">⚡</span> for safer communities</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/particles.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavbar();
+            initMobileMenu();
+        });
+    </script>
+</body>
+</html>
