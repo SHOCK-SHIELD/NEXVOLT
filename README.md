@@ -1,3 +1,4 @@
+git <<<<<<< HEAD
 ## Hi there 👋
 
 <!--
@@ -14,3 +15,6 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
+=======
+# NEXVOLT
+>>>>>>> d26446801683c128a66d4a82be48832e7bfb8c75
