@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - ShockShield</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: #0A0E17;
+            color: #F8FAFC;
+        }
+        h1 { color: #FFD700; }
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .icon-card {
+            background: #151D2C;
+            border: 1px solid #2A3A4F;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .icon-card canvas {
+            max-width: 100%;
+            border-radius: 8px;
+            background: #0A0E17;
+        }
+        .icon-card label {
+            display: block;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: #FFD700;
+        }
+        .btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FF6B00 100%);
+            color: #0A0E17;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        .btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <h1>🎨 ShockShield Icon Generator</h1>
+    <p>Generate PNG icons of various sizes from the master SVG.</p>
+    
+    <button class="btn" onclick="generateAll()">Generate All Sizes</button>
+    <button class="btn" onclick="downloadAll()">Download All as ZIP</button>
+    
+    <div class="size-grid" id="sizeGrid"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="50%" style="stop-color:#FF6B00"/>
+      <stop offset="100%" style="stop-color:#FF0033"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" stroke="url(#iconGrad)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M256 64 L296 192 L272 192 L312 352 L216 224 L240 224 L200 96 Z" fill="url(#iconGrad)"/>
+  <circle cx="176" cy="192" r="12" fill="#FFD700"/>
+  <circle cx="336" cy="192" r="12" fill="#FFD700"/>
+  <circle cx="176" cy="320" r="12" fill="#FFD700"/>
+  <circle cx="336" cy="320" r="12" fill="#FFD700"/>
+  <circle cx="256" cy="256" r="200" stroke="url(#iconGrad)" stroke-width="4" opacity="0.3"/>
+</svg>`;
+
+        const grid = document.getElementById('sizeGrid');
+        const canvases = {};
+
+        sizes.forEach(size => {
+            const card = document.createElement('div');
+            card.className = 'icon-card';
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            
+            const label = document.createElement('label');
+            label.textContent = `${size}x${size}`;
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'btn';
+            downloadBtn.style.padding = '0.5rem 1rem';
+            downloadBtn.style.fontSize = '0.875rem';
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = () => downloadCanvas(canvas, `icon-${size}.png`);
+            
+            card.appendChild(canvas);
+            card.appendChild(label);
+            card.appendChild(downloadBtn);
+            grid.appendChild(card);
+            
+            canvases[size] = canvas;
+        });
+
+        function renderIcon(size) {
+            const canvas = canvases[size];
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, size, size);
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgContent);
+        }
+
+        function generateAll() {
+            sizes.forEach(renderIcon);
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadAll() {
+            // Generate if not already
+            sizes.forEach(renderIcon);
+            
+            // Create zip-like download (individual files)
+            setTimeout(() => {
+                sizes.forEach(size => {
+                    const canvas = canvases[size];
+                    downloadCanvas(canvas, `icon-${size}.png`);
+                });
+            }, 100);
+        }
+
+        // Auto-generate on load
+        generateAll();
+    </script>
+</body>
+</html>
