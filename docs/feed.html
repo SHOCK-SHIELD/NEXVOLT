@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFD700">
+    <meta name="description" content="Live hazard feed - Real-time community reports of electrical hazards in your area.">
+    <title>Live Feed - ShockShield</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/feed.css">
+</head>
+<body>
+    <!-- Particle Canvas Background -->
+    <canvas id="particle-canvas" class="particle-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo" aria-label="ShockShield Home">
+                <svg class="logo-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700"/>
+                            <stop offset="100%" style="stop-color:#FF6B00"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M24 4 L24 20 M12 20 L36 20 M20 28 L28 28 M16 36 L32 36" stroke="url(#logoGradient)" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="24" cy="4" r="3" fill="url(#logoGradient)"/>
+                    <circle cx="12" cy="20" r="2" fill="#FFD700"/>
+                    <circle cx="36" cy="20" r="2" fill="#FFD700"/>
+                </svg>
+                <span class="logo-text">ShockShield</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="map.html" class="nav-link">Hazard Map</a>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="register.html" class="btn btn-secondary">Sign Up</a>
+                <button class="btn btn-primary" id="reportHazardBtn">
+                    <span class="btn-text">Report Hazard</span>
+                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="16"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Feed Header -->
+    <header class="feed-header">
+        <div class="container">
+            <div class="feed-header-content">
+                <div class="feed-title-section">
+                    <h1 class="feed-title">Live Hazard Feed</h1>
+                    <p class="feed-subtitle">Real-time community reports from your area</p>
+                </div>
+                
+                <div class="feed-controls">
+                    <div class="filter-group">
+                        <label for="locationFilter" class="sr-only">Filter by location</label>
+                        <select id="locationFilter" class="form-select filter-select">
+                            <option value="nearby">Near Me (5km)</option>
+                            <option value="city">My City</option>
+                            <option value="state">My State</option>
+                            <option value="all">All Locations</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="statusFilter" class="sr-only">Filter by status</label>
+                        <select id="statusFilter" class="form-select filter-select">
+                            <option value="all">All Status</option>
+                            <option value="unsolved">Unsolved</option>
+                            <option value="inprogress">In Progress</option>
+                            <option value="solved">Resolved</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="typeFilter" class="sr-only">Filter by type</label>
+                        <select id="typeFilter" class="form-select filter-select">
+                            <option value="all">All Types</option>
+                            <option value="live-wire">Live Wire</option>
+                            <option value="transformer">Transformer Burst</option>
+                            <option value="illegal">Illegal Connection</option>
+                            <option value="sparking">Sparking Equipment</option>
+                            <option value="exposed">Exposed Cable</option>
+                            <option value="theft">Electricity Theft</option>
+                        </select>
+                    </div>
+                    
+                    <div class="sort-group">
+                        <label for="sortBy" class="sr-only">Sort by</label>
+                        <select id="sortBy" class="form-select filter-select">
+                            <option value="priority">Priority (Likes)</option>
+                            <option value="recent">Most Recent</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="critical">Most Critical</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Feed -->
+    <main class="feed-main" role="main">
+        <div class="container">
+            <div class="feed-layout">
+                <!-- Feed Content -->
+                <section class="feed-content" aria-label="Hazard Reports Feed">
+                    <!-- Report Hazard Card (Sticky at top) -->
+                    <article class="report-card" id="reportCard">
+                        <div class="report-card-header">
+                            <div class="report-avatar">
+                                <div class="avatar-ring"></div>
+                                <span class="avatar-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="8" x2="12" y2="16"/>
+                                        <line x1="8" y1="12" x2="16" y2="12"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="report-prompt">
+                                <h3>Report a Hazard</h3>
+                                <p>Spot something dangerous? Help keep your community safe.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-full" id="openReportModal">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                            Create Report
+                        </button>
+                    </article>
+
+                    <!-- Feed Posts Container -->
+                    <div class="feed-posts" id="feedPosts" role="feed">
+                        <!-- Posts will be rendered here -->
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="load-more-container">
+                        <button class="btn btn-secondary btn-full" id="loadMoreBtn">
+                            <span class="btn-text">Load More Reports</span>
+                            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <h3>No Reports Found</h3>
+                        <p>No hazards match your current filters. Try adjusting your search or be the first to report!</p>
+                        <button class="btn btn-primary" id="clearFiltersBtn">Clear All Filters</button>
+                    </div>
+                </section>
+
+                <!-- Sidebar -->
+                <aside class="feed-sidebar" aria-label="Sidebar">
+                    <!-- Quick Stats -->
+                    <div class="sidebar-card stats-card">
+                        <h3 class="sidebar-title">Your Impact</h3>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <span class="user-stat-number" id="userReports">0</span>
+                                <span class="user-stat-label">Reports Filed</span>
+                            </div>
+                            <div class="user-stat">
+                                <span class="user-stat-number" id="userLikes">0</span>
+                                <span class="user-stat-label">Likes Given</span>
+                            </div>
+                            <div class="user-stat">
+                                <span class="user-stat-number" id="userVerified">0</span>
+                                <span class="user-stat-label">Verified Reports</span>
+                            </div>
+                            <div class="user-stat">
+                                <span class="user-stat-number" id="userRank">#1,234</span>
+                                <span class="user-stat-label">Community Rank</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-secondary btn-full btn-small">View Profile</a>
+                    </div>
+
+                    <!-- Trending Hazards -->
+                    <div class="sidebar-card trending-card">
+                        <h3 class="sidebar-title">Trending Now</h3>
+                        <div class="trending-list" id="trendingList">
+                            <!-- Trending items rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Hazard Types Legend -->
+                    <div class="sidebar-card legend-card">
+                        <h3 class="sidebar-title">Hazard Types</h3>
+                        <ul class="hazard-types">
+                            <li class="hazard-type" data-type="live-wire">
+                                <span class="type-icon live-wire"></span>
+                                <span>Live Wire</span>
+                                <span class="type-count">47</span>
+                            </li>
+                            <li class="hazard-type" data-type="transformer">
+                                <span class="type-icon transformer"></span>
+                                <span>Transformer Burst</span>
+                                <span class="type-count">23</span>
+                            </li>
+                            <li class="hazard-type" data-type="illegal">
+                                <span class="type-icon illegal"></span>
+                                <span>Illegal Connection</span>
+                                <span class="type-count">156</span>
+                            </li>
+                            <li class="hazard-type" data-type="sparking">
+                                <span class="type-icon sparking"></span>
+                                <span>Sparking Equipment</span>
+                                <span class="type-count">34</span>
+                            </li>
+                            <li class="hazard-type" data-type="exposed">
+                                <span class="type-icon exposed"></span>
+                                <span>Exposed Cable</span>
+                                <span class="type-count">89</span>
+                            </li>
+                            <li class="hazard-type" data-type="theft">
+                                <span class="type-icon theft"></span>
+                                <span>Electricity Theft</span>
+                                <span class="type-count">12</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Safety Tips -->
+                    <div class="sidebar-card tips-card">
+                        <h3 class="sidebar-title">Safety First</h3>
+                        <ul class="safety-tips">
+                            <li>
+                                <span class="tip-number">1</span>
+                                <span>Never touch or approach downed power lines</span>
+                            </li>
+                            <li>
+                                <span class="tip-number">2</span>
+                                <span>Keep at least 10 meters away from electrical hazards</span>
+                            </li>
+                            <li>
+                                <span class="tip-number">3</span>
+                                <span>Report immediately - don't assume someone else will</span>
+                            </li>
+                            <li>
+                                <span class="tip-number">4</span>
+                                <span>Warn others in the area until help arrives</span>
+                            </li>
+                            <li>
+                                <span class="tip-number">5</span>
+                                <span>Call emergency services for immediate danger</span>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Hazard Modal -->
+    <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2 id="reportModalTitle" class="modal-title">Report Electrical Hazard</h2>
+                <button class="modal-close" id="closeReportModal" aria-label="Close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="reportForm" class="modal-body" novalidate>
+                <div class="form-steps" id="formSteps">
+                    <!-- Step 1: Photo & Location -->
+                    <div class="form-step active" data-step="1">
+                        <h3 class="step-title">Photo & Location</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Hazard Photo <span class="required">*</span></label>
+                            <div class="file-upload" id="photoUpload">
+                                <input type="file" id="hazardPhoto" name="photo" class="file-upload-input" accept="image/*" capture="environment" required>
+                                <label class="file-upload-label" for="hazardPhoto">
+                                    <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                    <span class="file-upload-text">Tap to capture or upload photo</span>
+                                    <span class="file-upload-hint">Max 10MB • JPG, PNG, HEIC</span>
+                                </label>
+                            </div>
+                            <div class="file-preview" id="photoPreview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Location <span class="required">*</span></label>
+                            <div class="location-input-group">
+                                <input type="text" id="hazardLocation" name="location" class="form-input" placeholder="Detecting your location..." readonly>
+                                <button type="button" class="btn btn-secondary btn-small" id="getLocationBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                        <path d="M12 2v2M12 20v2M2 12h2M20 12h2"></path>
+                                    </svg>
+                                    Use GPS
+                                </button>
+                            </div>
+                            <input type="hidden" id="hazardLat" name="latitude">
+                            <input type="hidden" id="hazardLng" name="longitude">
+                            <span class="form-help" id="locationStatus">Click "Use GPS" to auto-detect your location</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Details -->
+                    <div class="form-step" data-step="2">
+                        <h3 class="step-title">Hazard Details</h3>
+                        
+                        <div class="form-group">
+                            <label for="hazardType" class="form-label">Hazard Type <span class="required">*</span></label>
+                            <select id="hazardType" name="type" class="form-select" required>
+                                <option value="">Select hazard type</option>
+                                <option value="live-wire">🔴 Live Wire / Downed Power Line</option>
+                                <option value="transformer">⚡ Transformer Burst / Explosion</option>
+                                <option value="illegal">🔌 Illegal Connection / Theft</option>
+                                <option value="sparking">💥 Sparking Equipment</option>
+                                <option value="exposed">⚠️ Exposed Cable / Open Junction</option>
+                                <option value="theft">🔓 Electricity Theft / Meter Tampering</option>
+                                <option value="other">📋 Other Electrical Hazard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hazardDescription" class="form-label">Description <span class="required">*</span></label>
+                            <textarea id="hazardDescription" name="description" class="form-textarea" placeholder="Describe what you see... (e.g., 'Live wire sparking on Main St near bus stop, pedestrians at risk')" required minlength="20" maxlength="500"></textarea>
+                            <span class="form-help"><span id="descCount">0</span>/500 characters</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Severity</label>
+                            <div class="severity-selector">
+                                <label class="severity-option">
+                                    <input type="radio" name="severity" value="low" checked>
+                                    <span class="severity-card low">
+                                        <span class="severity-dot"></span>
+                                        <span class="severity-label">Low</span>
+                                        <span class="severity-desc">Minor risk, no immediate danger</span>
+                                    </span>
+                                </label>
+                                <label class="severity-option">
+                                    <input type="radio" name="severity" value="medium">
+                                    <span class="severity-card medium">
+                                        <span class="severity-dot"></span>
+                                        <span class="severity-label">Medium</span>
+                                        <span class="severity-desc">Potential danger, caution needed</span>
+                                    </span>
+                                </label>
+                                <label class="severity-option">
+                                    <input type="radio" name="severity" value="high">
+                                    <span class="severity-card high">
+                                        <span class="severity-dot"></span>
+                                        <span class="severity-label">High</span>
+                                        <span class="severity-desc">Serious risk, avoid area</span>
+                                    </span>
+                                </label>
+                                <label class="severity-option">
+                                    <input type="radio" name="severity" value="critical">
+                                    <span class="severity-card critical">
+                                        <span class="severity-dot"></span>
+                                        <span class="severity-label">Critical</span>
+                                        <span class="severity-desc">Life-threatening, emergency!</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Review -->
+                    <div class="form-step" data-step="3">
+                        <h3 class="step-title">Review & Submit</h3>
+                        
+                        <div class="review-summary">
+                            <div class="review-section">
+                                <h4>Photo</h4>
+                                <div class="review-photo" id="reviewPhoto"></div>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4>Location</h4>
+                                <p id="reviewLocation">Not set</p>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4>Type</h4>
+                                <p id="reviewType">Not selected</p>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4>Severity</h4>
+                                <p id="reviewSeverity">Not selected</p>
+                            </div>
+                            
+                            <div class="review-section">
+                                <h4>Description</h4>
+                                <p id="reviewDescription">Not provided</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" name="terms" required>
+                                <span class="checkbox-custom"></span>
+                                <span>I confirm this report is accurate and not false. False reports may result in account suspension.</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Navigation -->
+                <div class="form-step-nav">
+                    <button type="button" class="btn btn-secondary" id="prevStep" style="display: none;">Previous</button>
+                    <div class="step-indicators">
+                        <span class="step-indicator active" data-step="1"><span>1</span>Photo</span>
+                        <span class="step-indicator" data-step="2"><span>2</span>Details</span>
+                        <span class="step-indicator" data-step="3"><span>3</span>Review</span>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="nextStep">Next</button>
+                    <button type="submit" class="btn btn-primary" id="submitReport" style="display: none;">
+                        <span class="btn-text">Submit Report</span>
+                        <svg class="btn-icon btn-loading" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4">
+                                <animateTransform attributeName="transform" type="rotate" dur="1s" from="0 12 12" to="360 12 12" repeatCount="indefinite"/>
+                            </circle>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Detail Modal -->
+    <div class="modal-overlay" id="postModal" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2 id="postModalTitle" class="modal-title">Hazard Details</h2>
+                <button class="modal-close" id="closePostModal" aria-label="Close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="postModalBody">
+                <!-- Post detail content rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/feed.js"></script>
+</body>
+</html>
